@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Müzakere - Nur Kaşifleri</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .question-box {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 20px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+        }
+        .answers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 30px 0;
+        }
+        .answer-btn {
+            padding: 20px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            border-radius: 15px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .answer-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-3px);
+        }
+        .correct {
+            background: #48bb78 !important;
+            border-color: #48bb78 !important;
+        }
+        .wrong {
+            background: #f56565 !important;
+            border-color: #f56565 !important;
+        }
+        .score {
+            font-size: 1.5em;
+            margin: 20px 0;
+        }
+        .hasenat-points {
+            color: #f6e05e;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💭 MÜZAKERE</h1>
+        <p>Risale-i Nur hakikatlerini keşfet</p>
+        
+        <div class="question-box">
+            <h2 id="question-text">Soru yükleniyor...</h2>
+            <div id="category">Kategori: <span id="category-name">Yükleniyor</span></div>
+            <div id="difficulty">Zorluk: <span id="difficulty-level">Orta</span></div>
+        </div>
+        
+        <div class="answers" id="answers-container">
+            <!-- Cevaplar buraya gelecek -->
+        </div>
+        
+        <div class="score">
+            Skor: <span id="score">0</span> |
+            Hasenat: <span id="hasenat" class="hasenat-points">0</span> puan
+        </div>
+        
+        <div>
+            <button onclick="nextQuestion()" id="next-btn" style="display:none;">Sonraki Soru →</button>
+            <button onclick="window.location.href='index.html'">Ana Menü</button>
+        </div>
+    </div>
+    
+    <script type="module" src="js/games/muzakere.js"></script>
+</body>
+</html>

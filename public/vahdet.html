@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Vahdet Tablosu - Nur Kaşifleri</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .puzzle-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+            margin: 30px auto;
+            width: 500px;
+            height: 500px;
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            border-radius: 15px;
+        }
+        .puzzle-piece {
+            background-size: 500px 500px;
+            border: 2px solid rgba(255,255,255,0.3);
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .puzzle-piece:hover {
+            transform: scale(1.05);
+            border-color: rgba(255,255,255,0.6);
+        }
+        .empty {
+            background: rgba(255,255,255,0.05);
+            border: 2px dashed rgba(255,255,255,0.2);
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        button {
+            padding: 12px 25px;
+            margin: 5px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+        }
+        .timer {
+            font-size: 1.5em;
+            margin: 20px 0;
+            color: #f6e05e;
+        }
+        .moves {
+            font-size: 1.2em;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧩 VAHDE TABLOSU</h1>
+    <p>"Parçalardan bütünü görme" tevhid manasını hissettiren puzzle</p>
+    
+    <div class="game-container">
+        <div class="timer">⏱ Süre: <span id="timer">00:00</span></div>
+        <div class="moves">♻ Hamle: <span id="moves">0</span></div>
+        
+        <div class="puzzle-container" id="puzzle-container">
+            <!-- Puzzle parçaları buraya gelecek -->
+        </div>
+        
+        <div class="controls">
+            <button onclick="shufflePuzzle()">🎲 Karıştır</button>
+            <button onclick="showOriginal()">👁 Resmi Göster</button>
+            <button onclick="hint()">💡 İpucu</button>
+            <button onclick="resetGame()">🔄 Yeniden Başla</button>
+            <button onclick="window.location.href='index.html'">🏠 Ana Menü</button>
+        </div>
+        
+        <div id="message"></div>
+    </div>
+    
+    <script>
+        const PUZZLE_SIZE = 4; // 4x4 puzzle
+        let puzzlePieces = [];
+        let emptyIndex = PUZZLE_SIZE * PUZZLE_SIZE - 1;
+        let moves = 0;
+        let startTime = null;
+        let timerInterval = null;
+        let hasenat = 0;
+        
+        // Puzzle resimleri (Nur Kaşifleri temalı)
+        const puzzleImages = [
+            "🌙", "⭐", "📖", "🕌",
+            "🕋", "☪️", "🕯️", "🌹",
+            "📿", "🕌", "🌠", "🕊️",
+            "✨", "🌟", "💫", ""
+        ];
+        
+        const puzzleMeanings = [
+            "Kamer (Ay)",
+            "Necm (Yıldız)",
+            "Kur'an-ı Kerim",
+            "Mescid",
+            "Kabe-i Muazzama",
+            "İslam Sembolü",
+            "Nur (Işık)",
+            "Gül (Hz. Muhammed)",
+            "Tespih",
+            "Cami",
+            "Şihab (Kayan Yıldız)",
+            "Selam (Barış)",
+            "Parlaklık",
+            "Yıldız",
+            "Nuraniyet",
+            "Vahdet (Boşluk)"
+        ];
+        
+        function initPuzzle() {
+            const container = document.getElementById('puzzle-container');
+            container.innerHTML = '';
+            
+            puzzlePieces = [];
+            for(let i = 0; i < PUZZLE_SIZE * PUZZLE_SIZE; i++) {
+                const piece = document.createElement('div');
+                piece.className = i === emptyIndex ? 'puzzle-piece empty' : 'puzzle-piece';
+                piece.dataset.index = i;
+                piece.dataset.correctIndex = i;
+                
+                if(i !== emptyIndex) {
+                    piece.textContent = puzzleImages[i];
+                    piece.title = puzzleMeanings[i];
+                    piece.style.fontSize = '2.5em';
+                    piece.style.display = 'flex';
+                    piece.style.alignItems = 'center';
+                    piece.style.justifyContent = 'center';
+                    piece.style.background = `rgba(${Math.random()*100+155}, ${Math.random()*100+155}, ${Math.random()*100+155}, 0.3)`;
+                }
+                
+                piece.onclick = () => movePiece(i);
+                container.appendChild(piece);
+                puzzlePieces.push(piece);
+            }
+            
+            // Puzzle'ı karıştır
+            shufflePuzzle();
+        }
+        
+        function shufflePuzzle() {
+            // Boş parçayı rastgele hareket ettirerek karıştır
+            for(let i = 0; i < 1000; i++) {
+                const possibleMoves = getPossibleMoves();
+                const randomMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+                swapPieces(emptyIndex, randomMove);
+                emptyIndex = randomMove;
+            }
+            
+            moves = 0;
+            document.getElementById('moves').textContent = moves;
+            
+            // Timer'ı başlat
+            if(!startTime) {
+                startTime = new Date();
+                timerInterval = setInterval(updateTimer, 1000);
+            }
+        }
+        
+        function getPossibleMoves() {
+            const row = Math.floor(emptyIndex / PUZZLE_SIZE);
+            const col = emptyIndex % PUZZLE_SIZE;
+            const moves = [];
+            
+            // Yukarı
+            if(row > 0) moves.push(emptyIndex - PUZZLE_SIZE);
+            // Aşağı
+            if(row < PUZZLE_SIZE - 1) moves.push(emptyIndex + PUZZLE_SIZE);
+            // Sol
+            if(col > 0) moves.push(emptyIndex - 1);
+            // Sağ
+            if(col < PUZZLE_SIZE - 1) moves.push(emptyIndex + 1);
+            
+            return moves;
+        }
+        
+        function movePiece(index) {
+            const possibleMoves = getPossibleMoves();
+            
+            if(possibleMoves.includes(index)) {
+                swapPieces(emptyIndex, index);
+                emptyIndex = index;
+                moves++;
+                document.getElementById('moves').textContent = moves;
+                
+                // Her 5 hamlede 1 hasenat
+                if(moves % 5 === 0) {
+                    hasenat += 1;
+                    showMessage(`+1 Hasenat (${moves}. hamle)`, 'success');
+                }
+                
+                checkWin();
+            }
+        }
+        
+        function swapPieces(index1, index2) {
+            const piece1 = puzzlePieces[index1];
+            const piece2 = puzzlePieces[index2];
+            
+            // HTML öğelerini değiştir
+            const parent = piece1.parentNode;
+            const temp = document.createElement('div');
+            parent.insertBefore(temp, piece1);
+            parent.insertBefore(piece1, piece2);
+            parent.insertBefore(piece2, temp);
+            parent.removeChild(temp);
+            
+            // Array'de de değiştir
+            [puzzlePieces[index1], puzzlePieces[index2]] = 
+            [puzzlePieces[index2], puzzlePieces[index1]];
+            
+            // Dataset index'lerini güncelle
+            puzzlePieces[index1].dataset.index = index1;
+            puzzlePieces[index2].dataset.index = index2;
+        }
+        
+        function checkWin() {
+            let solved = true;
+            for(let i = 0; i < puzzlePieces.length; i++) {
+                if(parseInt(puzzlePieces[i].dataset.index) !== parseInt(puzzlePieces[i].dataset.correctIndex)) {
+                    solved = false;
+                    break;
+                }
+            }
+            
+            if(solved) {
+                clearInterval(timerInterval);
+                
+                // Hasenat hesapla
+                const timeBonus = Math.max(0, 300 - Math.floor((new Date() - startTime) / 1000));
+                const movesBonus = Math.max(0, 100 - moves);
+                const totalHasenat = 50 + Math.floor(timeBonus / 10) + Math.floor(movesBonus / 5);
+                
+                showMessage(
+                    `🎉 Tebrikler! Puzzle tamamlandı!\n` +
+                    `⏱ Süre: ${formatTime(new Date() - startTime)}\n` +
+                    `♻ Hamle: ${moves}\n` +
+                    `✨ Hasenat: +${totalHasenat} puan`,
+                    'success'
+                );
+                
+                // Hasenat'ı kaydet (localStorage)
+                const totalHasenatScore = parseInt(localStorage.getItem('hasenat') || '0') + totalHasenat;
+                localStorage.setItem('hasenat', totalHasenatScore.toString());
+            }
+        }
+        
+        function showOriginal() {
+            // Orijinal resmi göster
+            const message = document.createElement('div');
+            message.innerHTML = `
+                <h3>Vahdet Tablosu - Anlamlar</h3>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 20px 0;">
+                    ${puzzleImages.map((img, i) => `
+                        <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px;">
+                            <div style="font-size: 2em">${img}</div>
+                            <div style="font-size: 0.8em">${puzzleMeanings[i]}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            message.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0,0,0,0.9);
+                padding: 30px;
+                border-radius: 20px;
+                z-index: 1000;
+                max-width: 90%;
+                max-height: 90%;
+                overflow: auto;
+            `;
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = 'Kapat';
+            closeBtn.onclick = () => document.body.removeChild(message);
+            closeBtn.style.cssText = `
+                margin-top: 20px;
+                padding: 10px 20px;
+                background: #667eea;
+                color: white;
+                border: none;
+                border-radius: 10px;
+                cursor: pointer;
+            `;
+            
+            message.appendChild(closeBtn);
+            document.body.appendChild(message);
+        }
+        
+        function hint() {
+            // Doğru pozisyonda olmayan bir parçayı vurgula
+            for(let i = 0; i < puzzlePieces.length; i++) {
+                if(parseInt(puzzlePieces[i].dataset.index) !== parseInt(puzzlePieces[i].dataset.correctIndex)) {
+                    puzzlePieces[i].style.boxShadow = '0 0 20px gold';
+                    puzzlePieces[i].style.borderColor = 'gold';
+                    
+                    setTimeout(() => {
+                        puzzlePieces[i].style.boxShadow = '';
+                        puzzlePieces[i].style.borderColor = '';
+                    }, 2000);
+                    break;
+                }
+            }
+            
+            showMessage('💡 Bir parça vurgulandı!', 'info');
+        }
+        
+        function resetGame() {
+            clearInterval(timerInterval);
+            startTime = null;
+            moves = 0;
+            document.getElementById('timer').textContent = '00:00';
+            document.getElementById('moves').textContent = '0';
+            initPuzzle();
+        }
+        
+        function updateTimer() {
+            if(startTime) {
+                const elapsed = new Date() - startTime;
+                document.getElementById('timer').textContent = formatTime(elapsed);
+            }
+        }
+        
+        function formatTime(ms) {
+            const seconds = Math.floor(ms / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+        
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.style.cssText = `
+                margin: 20px 0;
+                padding: 15px;
+                background: ${type === 'success' ? '#48bb78' : 
+                           type === 'error' ? '#f56565' : '#4299e1'};
+                color: white;
+                border-radius: 10px;
+                animation: fadeIn 0.3s ease;
+            `;
+            
+            setTimeout(() => {
+                messageDiv.style.animation = 'fadeOut 0.3s ease';
+                setTimeout(() => {
+                    messageDiv.textContent = '';
+                    messageDiv.style.cssText = '';
+                }, 300);
+            }, 5000);
+        }
+        
+        // Animasyon CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(-10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            @keyframes fadeOut {
+                from { opacity: 1; transform: translateY(0); }
+                to { opacity: 0; transform: translateY(-10px); }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Oyunu başlat
+        initPuzzle();
+    </script><script type="module" src="js/games/vahdet.js"></script>
+</body>
+</html>

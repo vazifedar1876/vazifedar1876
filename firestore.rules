@@ -1,0 +1,21 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Kullanıcılar sadece kendi verilerini okuyabilir/güncelleyebilir
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Skorlar herkes tarafından okunabilir, sadece auth kullanıcılar yazabilir
+    match /scores/{scoreId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // Sorular herkes tarafından okunabilir
+    match /questions/{questionId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.admin == true;
+    }
+  }
+}

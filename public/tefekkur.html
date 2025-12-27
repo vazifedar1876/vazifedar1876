@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Tefekkür mü Teşebbüs mü? - Nur Kaşifleri</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .title {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-bottom: 40px;
+        }
+        .game-area {
+            background: rgba(255,255,255,0.1);
+            border-radius: 25px;
+            padding: 30px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .choice-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+        .choice-btn {
+            width: 300px;
+            height: 300px;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            color: white;
+            font-size: 1.3em;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        .choice-btn:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+        }
+        .choice-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+        .tefekkur-btn {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        }
+        .tesebbus-btn {
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+        }
+        .content-box {
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .question-text {
+            font-size: 1.5em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .task-text {
+            font-size: 1.4em;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        .action-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 150px;
+        }
+        .complete-btn {
+            background: #48bb78;
+            color: white;
+        }
+        .skip-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        .timer {
+            font-size: 1.2em;
+            margin: 20px 0;
+            color: #f6e05e;
+        }
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 30px 0;
+            font-size: 1.2em;
+        }
+        .stat-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px 25px;
+            border-radius: 15px;
+        }
+        .hasenat-points {
+            color: #f6e05e;
+            font-weight: bold;
+        }
+        .reflection-box {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            text-align: left;
+            display: none;
+        }
+        .reflection-title {
+            color: #68d391;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            background: rgba(0,0,0,0.3);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            color: white;
+            padding: 15px;
+            font-size: 1.1em;
+            resize: vertical;
+            font-family: 'Arial', sans-serif;
+        }
+        textarea::placeholder {
+            color: rgba(255,255,255,0.6);
+        }
+        .back-btn {
+            margin-top: 30px;
+            padding: 12px 25px;
+            background: rgba(255,255,255,0.15);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            border-radius: 50px;
+            font-size: 1.1em;
+            cursor: pointer;
+        }
+        @media (max-width: 768px) {
+            .choice-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            .choice-btn {
+                width: 250px;
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">🤔 Tefekkür mü Teşebbüs mü?</h1>
+        <p class="subtitle">İç muhasebe soruları ve salih amel görevleri</p>
+        
+        <div class="stats">
+            <div class="stat-item">🎯 Tamamlanan: <span id="completed">0</span></div>
+            <div class="stat-item">✨ Hasenat: <span id="hasenat" class="hasenat-points">0</span></div>
+            <div class="stat-item">⏱ Toplam Süre: <span id="total-time">00:00</span></div>
+        </div>
+        
+        <div class="game-area" id="choice-screen">
+            <h2>Hangi yoldan gitmek istersin?</h2>
+            <p>Seçimin seni derin bir tefekkür veya manalı bir teşebbüse götürecek</p>
+            
+            <div class="choice-buttons">
+                <button class="choice-btn tefekkur-btn" onclick="selectTefekkur()">
+                    <div class="choice-icon">💭</div>
+                    <div>TEFEKKÜR YOLU</div>
+                    <div style="font-size: 0.8em; margin-top: 15px; opacity: 0.9;">İç Muhasebe Soruları</div>
+                </button>
+                
+                <button class="choice-btn tesebbus-btn" onclick="selectTesebbus()">
+                    <div class="choice-icon">🚀</div>
+                    <div>TEŞEBBÜS YOLU</div>
+                    <div style="font-size: 0.8em; margin-top: 15px; opacity: 0.9;">Salih Amel Görevleri</div>
+                </button>
+            </div>
+            
+            <div style="margin-top: 40px; opacity: 0.8;">
+                <p><strong>Tefekkür:</strong> Kendini tanıma, hayatı anlamlandırma, derin düşünme</p>
+                <p><strong>Teşebbüs:</strong> Harekete geçme, iyilik yapma, pratik adımlar atma</p>
+            </div>
+        </div>
+        
+        <div class="game-area" id="question-screen" style="display: none;">
+            <h2>💭 TEFEKKÜR SORUSU</h2>
+            <div class="content-box">
+                <div class="question-text" id="question-text">Soru yükleniyor...</div>
+                <div class="timer" id="reflection-timer">Düşünme süresi: <span id="timer-count">60</span>s</div>
+            </div>
+            
+            <div class="reflection-box" id="reflection-box">
+                <div class="reflection-title">📝 Düşüncelerini Yaz (İsteğe bağlı):</div>
+                <textarea id="reflection-text" placeholder="Bu soru üzerine düşüncelerin neler? Buraya yazabilirsin..."></textarea>
+                <div style="text-align: right; margin-top: 10px; font-size: 0.9em; opacity: 0.7;">
+                    Yazdıkların sadece seninle kalacak
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="action-btn complete-btn" onclick="completeTefekkur()">
+                    ✅ Tefekkürümü Tamamladım
+                </button>
+                <button class="action-btn skip-btn" onclick="skipQuestion()">
+                    ⏭️ Farklı Bir Soru
+                </button>
+            </div>
+        </div>
+        
+        <div class="game-area" id="task-screen" style="display: none;">
+            <h2>🚀 TEŞEBBÜS GÖREVİ</h2>
+            <div class="content-box">
+                <div class="task-text" id="task-text">Görev yükleniyor...</div>
+                <div class="timer" id="task-timer">Görev süresi: <span id="task-timer-count">300</span>s</div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="action-btn complete-btn" onclick="completeTask()">
+                    ✅ Görevi Tamamladım
+                </button>
+                <button class="action-btn skip-btn" onclick="skipTask()">
+                    🔄 Farklı Bir Görev
+                </button>
+            </div>
+            
+            <div style="margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 15px;">
+                <h3 style="color: #f6e05e; margin-bottom: 10px;">💡 Görev İpuçları:</h3>
+                <p id="task-hint">Görev ipucu burada görünecek...</p>
+            </div>
+        </div>
+        
+        <div class="game-area" id="completion-screen" style="display: none;">
+            <h2 id="completion-title">🎉 Tamamlandı!</h2>
+            <div class="content-box">
+                <div id="completion-message" style="font-size: 1.4em; line-height: 1.6;"></div>
+                <div style="margin-top: 20px; font-size: 1.2em;">
+                    Kazandığın Hasenat: <span id="earned-hasenat" class="hasenat-points">0</span>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="action-btn complete-btn" onclick="nextChallenge()">
+                    🎯 Yeni Bir Meydan Okuma
+                </button>
+                <button class="action-btn skip-btn" onclick="showChoiceScreen()">
+                    🔄 Farklı Bir Yol Seç
+                </button>
+            </div>
+        </div>
+        
+        <button class="back-btn" onclick="window.location.href='index.html'">
+            ← Ana Menüye Dön
+        </button>
+    </div>
+    
+    <script>
+        // Tefekkür soruları (iç muhasebe)
+        const tefekkurQuestions = [
+            {
+                question: "Ömrünün geri kalanını nerede geçirmek isterdin ve neden?",
+                difficulty: "Orta",
+                reflectionTime: 90
+            },
+            {
+                question: "En son ne zaman bir çiçeği izleyip hayret ettin? O anda ne hissettin?",
+                difficulty: "Kolay",
+                reflectionTime: 60
+            },
+            {
+                question: "Şu an yanında olmayan, gıyabında dua edeceğin ilk kişi kim?",
+                difficulty: "Kolay",
+                reflectionTime: 45
+            },
+            {
+                question: "Hayatındaki en önemli 3 değer nedir? Bu değerler günlük hayatını nasıl şekillendiriyor?",
+                difficulty: "Zor",
+                reflectionTime: 120
+            },
+            {
+                question: "Bugün yaptığın bir iyiliği veya güzel bir davranışını düşün. Bunu yaparken ne hissettin?",
+                difficulty: "Kolay",
+                reflectionTime: 60
+            },
+            {
+                question: "Eğer dünyada sadece bir şeyi değiştirme gücün olsaydı, neyi değiştirirdin?",
+                difficulty: "Orta",
+                reflectionTime: 75
+            },
+            {
+                question: "Seni en çok neyin mutlu ettiğini düşün. Bu mutluluk kalıcı mı yoksa geçici mi?",
+                difficulty: "Orta",
+                reflectionTime: 90
+            },
+            {
+                question: "Bir ağacı düşün. Kökleri, gövdesi, dalları ve yapraklarıyla sana neyi hatırlatıyor?",
+                difficulty: "Kolay",
+                reflectionTime: 60
+            },
+            {
+                question: "Hayatında minnettar olduğun 5 şeyi sırala. Neden minnettarsın?",
+                difficulty: "Orta",
+                reflectionTime: 90
+            },
+            {
+                question: "Gece gökyüzüne baktığında ve yıldızları gördüğünde ne düşünüyorsun?",
+                difficulty: "Kolay",
+                reflectionTime: 60
+            }
+        ];
+
+        // Teşebbüs görevleri (salih amel)
+        const tesebbusTasks = [
+            {
+                task: "Telefonunu masaya bırak ve 1 dakika boyunca hiç konuşmadan tefekkür et.",
+                hint: "Gözlerini kapatabilir veya etrafındaki doğal güzellikleri izleyebilirsin.",
+                duration: 60,
+                difficulty: "Kolay"
+            },
+            {
+                task: "Ezbere bildiğin kısa bir sureyi sesli ve tane tane oku.",
+                hint: "Anlamını düşünerek okumaya çalış.",
+                duration: 120,
+                difficulty: "Kolay"
+            },
+            {
+                task: "Yanındaki arkadaşına (veya kendine) sesli olarak 'Allah seni seviyor' de.",
+                hint: "Samimiyetle ve gülümseyerek söyle.",
+                duration: 30,
+                difficulty: "Kolay"
+            },
+            {
+                task: "Bir sayfa kitap oku ve okuduğun bölümden bir ders çıkar.",
+                hint: "Kitaplığından veya çevrimiçi bir kaynaktan okuyabilirsin.",
+                duration: 300,
+                difficulty: "Orta"
+            },
+            {
+                task: "Bugün yapabileceğin küçük bir iyilik bul ve hemen yap.",
+                hint: "Çöpü at, kapıyı tut, gülümse veya teşekkür et.",
+                duration: 300,
+                difficulty: "Orta"
+            },
+            {
+                task: "10 dakika boyunca hiçbir şey yapmadan sadece otur ve etrafını gözlemle.",
+                hint: "Zihnini boşaltmaya çalış, sadece anı yaşa.",
+                duration: 600,
+                difficulty: "Zor"
+            },
+            {
+                task: "Bir bitkiyi veya hayvanı 5 dakika izle ve ondaki ilahi sanatı gör.",
+                hint: "En küçük detaylara bile dikkat et.",
+                duration: 300,
+                difficulty: "Orta"
+            },
+            {
+                task: "Bugün için 3 şükür sebebi yaz veya söyle.",
+                hint: "Küçük şeylerden başla: nefes almak, görebilmek gibi.",
+                duration: 180,
+                difficulty: "Kolay"
+            },
+            {
+                task: "Birine içten bir iltifat et.",
+                hint: "Göz teması kurarak ve samimi bir şekilde.",
+                duration: 60,
+                difficulty: "Kolay"
+            },
+            {
+                task: "5 dakika boyunca sessiz kal ve sadece dinle.",
+                hint: "Doğanın seslerini, çevrendeki sesleri dinle.",
+                duration: 300,
+                difficulty: "Orta"
+            }
+        ];
+
+        // Oyun durumu
+        let gameState = {
+            completed: 0,
+            hasenat: parseInt(localStorage.getItem('tefekkurHasenat') || '0'),
+            totalTime: 0,
+            currentType: null, // 'tefekkur' veya 'tesebbus'
+            currentQuestion: null,
+            currentTask: null,
+            timer: null,
+            timeLeft: 0
+        };
+
+        // DOM elementleri
+        const choiceScreen = document.getElementById('choice-screen');
+        const questionScreen = document.getElementById('question-screen');
+        const taskScreen = document.getElementById('task-screen');
+        const completionScreen = document.getElementById('completion-screen');
+        const reflectionBox = document.getElementById('reflection-box');
+
+        // İstatistikleri güncelle
+        function updateStats() {
+            document.getElementById('completed').textContent = gameState.completed;
+            document.getElementById('hasenat').textContent = gameState.hasenat;
+            document.getElementById('total-time').textContent = formatTime(gameState.totalTime);
+        }
+
+        // Zaman formatı
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Tefekkür seçildi
+        function selectTefekkur() {
+            gameState.currentType = 'tefekkur';
+            showRandomQuestion();
+            choiceScreen.style.display = 'none';
+            questionScreen.style.display = 'block';
+            reflectionBox.style.display = 'block';
+        }
+
+        // Teşebbüs seçildi
+        function selectTesebbus() {
+            gameState.currentType = 'tesebbus';
+            showRandomTask();
+            choiceScreen.style.display = 'none';
+            taskScreen.style.display = 'block';
+        }
+
+        // Rastgele soru göster
+        function showRandomQuestion() {
+            const randomIndex = Math.floor(Math.random() * tefekkurQuestions.length);
+            gameState.currentQuestion = tefekkurQuestions[randomIndex];
+            
+            document.getElementById('question-text').textContent = gameState.currentQuestion.question;
+            document.getElementById('timer-count').textContent = gameState.currentQuestion.reflectionTime;
+            gameState.timeLeft = gameState.currentQuestion.reflectionTime;
+            
+            startTimer('reflection-timer', 'timer-count');
+        }
+
+        // Rastgele görev göster
+        function showRandomTask() {
+            const randomIndex = Math.floor(Math.random() * tesebbusTasks.length);
+            gameState.currentTask = tesebbusTasks[randomIndex];
+            
+            document.getElementById('task-text').textContent = gameState.currentTask.task;
+            document.getElementById('task-hint').textContent = gameState.currentTask.hint;
+            document.getElementById('task-timer-count').textContent = gameState.currentTask.duration;
+            gameState.timeLeft = gameState.currentTask.duration;
+            
+            startTimer('task-timer', 'task-timer-count');
+        }
+
+        // Timer başlat
+        function startTimer(timerElementId, countElementId) {
+            if (gameState.timer) {
+                clearInterval(gameState.timer);
+            }
+            
+            gameState.timer = setInterval(() => {
+                gameState.timeLeft--;
+                document.getElementById(countElementId).textContent = gameState.timeLeft;
+                gameState.totalTime++;
+                updateStats();
+                
+                if (gameState.timeLeft <= 0) {
+                    clearInterval(gameState.timer);
+                    if (gameState.currentType === 'tefekkur') {
+                        completeTefekkur();
+                    } else {
+                        completeTask();
+                    }
+                }
+            }, 1000);
+        }
+
+        // Tefekkür tamamlandı
+        function completeTefekkur() {
+            clearInterval(gameState.timer);
+            
+            // Hasenat hesapla
+            const basePoints = 20;
+            const timeBonus = Math.max(0, gameState.currentQuestion.reflectionTime - gameState.timeLeft);
+            const difficultyMultiplier = {
+                'Kolay': 1,
+                'Orta': 1.5,
+                'Zor': 2
+            };
+            const earnedPoints = Math.floor(basePoints * difficultyMultiplier[gameState.currentQuestion.difficulty] + timeBonus / 10);
+            
+            // Yansıma metnini al
+            const reflectionText = document.getElementById('reflection-text').value;
+            
+            // Oyun durumunu güncelle
+            gameState.completed++;
+            gameState.hasenat += earnedPoints;
+            localStorage.setItem('tefekkurHasenat', gameState.hasenat.toString());
+            
+            // Tamamlama ekranını göster
+            showCompletionScreen(
+                "Tefekkür Tamamlandı!",
+                `"${gameState.currentQuestion.question}"<br><br>` +
+                `Derin düşünme süren: ${gameState.currentQuestion.reflectionTime - gameState.timeLeft} saniye<br>` +
+                (reflectionText ? `Yazdığın düşünceler: "${reflectionText.substring(0, 100)}${reflectionText.length > 100 ? '...' : ''}"` : "Düşüncelerini paylaşmadın"),
+                earnedPoints
+            );
+        }
+
+        // Görev tamamlandı
+        function completeTask() {
+            clearInterval(gameState.timer);
+            
+            // Hasenat hesapla
+            const basePoints = 30;
+            const timeBonus = Math.max(0, gameState.currentTask.duration - gameState.timeLeft);
+            const difficultyMultiplier = {
+                'Kolay': 1,
+                'Orta': 1.5,
+                'Zor': 2
+            };
+            const earnedPoints = Math.floor(basePoints * difficultyMultiplier[gameState.currentTask.difficulty] + timeBonus / 10);
+            
+            // Oyun durumunu güncelle
+            gameState.completed++;
+            gameState.hasenat += earnedPoints;
+            localStorage.setItem('tefekkurHasenat', gameState.hasenat.toString());
+            
+            // Tamamlama ekranını göster
+            showCompletionScreen(
+                "Görev Tamamlandı!",
+                `"${gameState.currentTask.task}"<br><br>` +
+                `Görev süren: ${gameState.currentTask.duration - gameState.timeLeft} saniye<br>` +
+                `Zorluk: ${gameState.currentTask.difficulty}`,
+                earnedPoints
+            );
+        }
+
+        // Soruyu geç
+        function skipQuestion() {
+            clearInterval(gameState.timer);
+            showRandomQuestion();
+            document.getElementById('reflection-text').value = '';
+        }
+
+        // Görevi geç
+        function skipTask() {
+            clearInterval(gameState.timer);
+            showRandomTask();
+        }
+
+        // Tamamlama ekranını göster
+        function showCompletionScreen(title, message, earnedPoints) {
+            questionScreen.style.display = 'none';
+            taskScreen.style.display = 'none';
+            completionScreen.style.display = 'block';
+            
+            document.getElementById('completion-title').textContent = title;
+            document.getElementById('completion-message').innerHTML = message;
+            document.getElementById('earned-hasenat').textContent = earnedPoints;
+            
+            // İstatistikleri güncelle
+            updateStats();
+            
+            // Yansıma metnini temizle
+            document.getElementById('reflection-text').value = '';
+        }
+
+        // Yeni meydan okuma
+        function nextChallenge() {
+            completionScreen.style.display = 'none';
+            
+            if (gameState.currentType === 'tefekkur') {
+                showRandomQuestion();
+                questionScreen.style.display = 'block';
+            } else {
+                showRandomTask();
+                taskScreen.style.display = 'block';
+            }
+        }
+
+        // Seçim ekranına dön
+        function showChoiceScreen() {
+            completionScreen.style.display = 'none';
+            questionScreen.style.display = 'none';
+            taskScreen.style.display = 'none';
+            choiceScreen.style.display = 'block';
+            
+            if (gameState.timer) {
+                clearInterval(gameState.timer);
+            }
+        }
+
+        // Sayfa yüklendiğinde istatistikleri göster
+        window.onload = function() {
+            updateStats();
+        };
+    </script><script type="module" src="js/games/tefekkur.js"></script>
+</body>
+</html>

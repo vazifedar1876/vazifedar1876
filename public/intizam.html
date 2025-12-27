@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>İntizam - Nur Kaşifleri</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .game-container {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        #game-board {
+            border: 3px solid rgba(255,255,255,0.3);
+            background: rgba(0,0,0,0.2);
+        }
+        .side-panel {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            min-width: 200px;
+            backdrop-filter: blur(10px);
+        }
+        .next-piece {
+            margin: 20px 0;
+            padding: 10px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+        }
+        .controls button {
+            padding: 12px 25px;
+            margin: 5px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+        }
+        .block {
+            position: absolute;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .block.I { background: #00f5d4; }
+        .block.J { background: #9d4edd; }
+        .block.L { background: #f8961e; }
+        .block.O { background: #f94144; }
+        .block.S { background: #43aa8b; }
+        .block.T { background: #577590; }
+        .block.Z { background: #f9c74f; }
+    </style>
+</head>
+<body>
+    <h1>🧩 İNTİZAM</h1>
+    <p>"Nizam ve intizamı sağlama" şuuru ile blokları yerleştir</p>
+    
+    <div class="game-container">
+        <div>
+            <canvas id="game-board" width="300" height="600"></canvas>
+        </div>
+        
+        <div class="side-panel">
+            <h3>OYUN BİLGİLERİ</h3>
+            <div>Puan: <span id="score">0</span></div>
+            <div>Seviye: <span id="level">1</span></div>
+            <div>Satırlar: <span id="lines">0</span></div>
+            <div>Hasenat: <span id="hasenat">0</span></div>
+            
+            <div class="next-piece">
+                <h4>Sıradaki Parça:</h4>
+                <canvas id="next-piece" width="100" height="100"></canvas>
+            </div>
+            
+            <div class="controls">
+                <button onclick="moveLeft()">← Sol</button>
+                <button onclick="moveRight()">Sağ →</button>
+                <button onclick="rotatePiece()">↻ Döndür</button>
+                <button onclick="dropPiece()">↓ Hızla</button>
+                <button onclick="pauseGame()">⏸ Duraklat</button>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <button onclick="startGame()" id="start-btn">OYUNU BAŞLAT</button>
+                <button onclick="window.location.href='index.html'">Ana Menü</button>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module" src="js/games/intizam.js"></script>
+</body>
+</html>

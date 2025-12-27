@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>İstikamet Rotası - Nur Kaşifleri</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .title {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+        .game-area {
+            display: flex;
+            gap: 30px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .maze-container {
+            flex: 1;
+            min-width: 500px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            padding: 20px;
+            position: relative;
+        }
+        .controls-container {
+            flex: 1;
+            min-width: 400px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        #maze-canvas {
+            background: rgba(0,0,0,0.5);
+            border-radius: 15px;
+            border: 3px solid rgba(255,255,255,0.3);
+        }
+        .blocks-panel {
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .blocks-title {
+            color: #f6e05e;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+        }
+        .blocks-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .block-item {
+            background: rgba(255,255,255,0.15);
+            border-radius: 10px;
+            padding: 20px;
+            cursor: grab;
+            transition: all 0.3s;
+            border: 2px solid rgba(255,255,255,0.2);
+            user-select: none;
+            font-weight: bold;
+        }
+        .block-item:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-3px);
+        }
+        .block-item.dragging {
+            opacity: 0.5;
+        }
+        .workspace {
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 25px;
+            min-height: 200px;
+            margin: 20px 0;
+            border: 2px dashed rgba(255,255,255,0.2);
+        }
+        .workspace-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+            min-height: 150px;
+        }
+        .workspace-item {
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 200px;
+            justify-content: center;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 25px 0;
+        }
+        .action-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 150px;
+        }
+        .run-btn {
+            background: #48bb78;
+            color: white;
+        }
+        .reset-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .stat-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px 25px;
+            border-radius: 15px;
+            min-width: 120px;
+        }
+        .hasenat-points {
+            color: #f6e05e;
+            font-weight: bold;
+        }
+        .instructions {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: left;
+        }
+        .instructions h3 {
+            color: #68d391;
+            margin-bottom: 10px;
+        }
+        .instructions ul {
+            padding-left: 20px;
+        }
+        .instructions li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        .level-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .level-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            transition: all 0.3s;
+        }
+        .level-dot.active {
+            background: #48bb78;
+            transform: scale(1.2);
+        }
+        .level-dot.completed {
+            background: #f6e05e;
+        }
+        @media (max-width: 768px) {
+            .game-area {
+                flex-direction: column;
+            }
+            .maze-container, .controls-container {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">🧭 İstikamet Rotası</h1>
+        <p class="subtitle">Algoritma mantığı ile hedefe ulaş - Sebat ve istikametle!</p>
+        
+        <div class="stats">
+            <div class="stat-item">🎯 Seviye: <span id="level">1</span>/5</div>
+            <div class="stat-item">⏱ Süre: <span id="timer">00:00</span></div>
+            <div class="stat-item">✨ Hasenat: <span id="hasenat" class="hasenat-points">0</span></div>
+            <div class="stat-item">♻ Deneme: <span id="attempts">0</span></div>
+        </div>
+        
+        <div class="level-indicator" id="level-indicator">
+            <!-- Seviye noktaları buraya gelecek -->
+        </div>
+        
+        <div class="game-area">
+            <div class="maze-container">
+                <canvas id="maze-canvas" width="500" height="500"></canvas>
+            </div>
+            
+            <div class="controls-container">
+                <h3>Kod Blokları</h3>
+                <p>Blokları sürükleyip aşağıdaki çalışma alanına bırakın:</p>
+                
+                <div class="blocks-panel">
+                    <div class="blocks-title">Mevcut Bloklar:</div>
+                    <div class="blocks-grid" id="blocks-grid">
+                        <!-- Bloklar buraya gelecek -->
+                    </div>
+                </div>
+                
+                <div class="workspace">
+                    <div class="blocks-title">Çalışma Alanı:</div>
+                    <div class="workspace-grid" id="workspace">
+                        <div style="color: rgba(255,255,255,0.5); padding: 30px;">
+                            Blokları buraya sürükleyin...
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="action-btn run-btn" onclick="runProgram()">
+                        ▶ Programı Çalıştır
+                    </button>
+                    <button class="action-btn reset-btn" onclick="resetWorkspace()">
+                        🔄 Sıfırla
+                    </button>
+                </div>
+                
+                <button class="action-btn" onclick="window.location.href='index.html'" 
+                        style="background: rgba(255,255,255,0.15); color: white; width: 100%; margin-top: 15px;">
+                    ← Ana Menüye Dön
+                </button>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>📚 Nasıl Oynanır:</h3>
+            <ul>
+                <li><strong>Hedef:</strong> Küçük Kaşif'i (🔍) Medrese'ye (🕌) ulaştır</li>
+                <li><strong>Bloklar:</strong> Sağdaki blokları sürükleyip çalışma alanına bırak</li>
+                <li><strong>Sıralama:</strong> Bloklar yukarıdan aşağıya doğru çalışır</li>
+                <li><strong>Döngü:</strong> "Tekrar Et" bloğu içindeki blokları belirtilen sayıda tekrarlar</li>
+                <li><strong>Koşul:</strong> "Eğer Engel Varsa" bloğu engel kontrolü yapar</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script type="module" src="js/games/istikamet.js"></script>
+</body>
+</html>
